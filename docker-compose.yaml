@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: ms-social-db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - ms-social-network
+
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - ms-social-network
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "8000:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - ms-social-network
+
+  api-gateway:
+    build: ./ApiGateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - rabbitmq
+    networks:
+      - ms-social-network
+
+  user-service:
+    build: ./UserService
+#    ports:
+#      - "8080:8080"
+    depends_on:
+      - db
+      - rabbitmq
+#      - kafka
+    networks:
+      - ms-social-network
+
+
+networks:
+  ms-social-network:
+    driver: bridge
+
+
+volumes:
+  db-data:
