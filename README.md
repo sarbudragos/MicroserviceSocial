@@ -75,3 +75,57 @@ title Architecture diagram
 ```
 
 ### 2. UML activity diagram
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+
+    participant Dashboard as Dashboard (Remote)
+    participant Gateway as API Gateway
+
+    participant UserService as UserService
+    participant Post as Post Service
+    participant DB as PostgreSQL
+    participant Rabbit as RabbitMQ
+
+    Note over User, Dashboard: User adds a post
+    User->>Dashboard: Click Add
+    Dashboard->>Gateway: POST /posts (Bearer Token)
+    Gateway->>UserService: Validate JWT
+    UserService->>Gateway: OK
+    Gateway->>Rabbit: RPC call add-post
+    Rabbit->>Post: Consume call
+
+    activate Post
+
+    Post->>Post: Generate Post
+    Post->>DB: INSERT INTO Posts (Status: CONFIRMED)
+    Post->>Rabbit: Reply
+
+    deactivate Post
+
+    Rabbit->>Gateway: Receive reply
+
+    Gateway-->>Dashboard: 200 OK
+    
+    Dashboard->>Gateway: GET /posts (Bearer Token)
+    Gateway->>UserService: Validate JWT
+    UserService->>Gateway: OK
+    Gateway->>Rabbit: RPC call add-post
+    Rabbit->>Post: Consume call
+
+    activate Post
+
+    Post->>DB: SELECT FROM Posts
+    Post->>Rabbit: Reply
+
+    deactivate Post
+
+    Rabbit->>Gateway: Receive reply
+
+    Gateway-->>Dashboard: 200 OK
+
+    Dashboard-->>User: Show posts with new post
+```
+
