@@ -1,11 +1,7 @@
 package org.example.apigateway.config;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.core.*;
-import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitAdmin;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,20 +10,46 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitConfig {
 
     @Bean
-    public Queue queue() {
-        return new Queue("user-request",true,true,false);
+    public JacksonJsonMessageConverter jsonMessageConverter() {
+        return new JacksonJsonMessageConverter();
     }
 
-    @Bean public Exchange exchange()
+    @Bean
+    public Queue userQueue() {
+        return new Queue("user-request",true,false,false);
+    }
+
+    @Bean
+    public Exchange userExchange()
     {
         return new DirectExchange("user-exchange");
     }
 
     @Bean
-    public Binding binding(Queue queue, Exchange exchange)
+    public Binding userBinding()
     {
-        return BindingBuilder.bind(queue)
-                .to(exchange)
+        return BindingBuilder.bind(userQueue())
+                .to(userExchange())
+                .with("routing-key")
+                .noargs();
+    }
+
+    @Bean
+    public Queue postQueue() {
+        return new Queue("post-request",true,false,false);
+    }
+
+    @Bean
+    public Exchange postExchange()
+    {
+        return new DirectExchange("post-exchange");
+    }
+
+    @Bean
+    public Binding postBinding()
+    {
+        return BindingBuilder.bind(postQueue())
+                .to(postExchange())
                 .with("routing-key")
                 .noargs();
     }

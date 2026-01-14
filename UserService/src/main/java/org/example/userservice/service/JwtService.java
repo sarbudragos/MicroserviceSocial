@@ -2,8 +2,13 @@ package org.example.userservice.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.SignatureException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import io.jsonwebtoken.security.Keys;
 
@@ -15,9 +20,12 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
 
+
     private static final String SECRET_KEY = "635166546A576E5A7234753778217A25432A462D4A614E645267556B58703273";
+    private final UserDetailsService userDetailsService;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -41,7 +49,6 @@ public class JwtService {
             Map<String, Object> extraClaims,
             UserDetails userDetails
     ){
-        //generates a jwt token
         return Jwts.builder()
                 .claims(extraClaims)
                 .subject(userDetails.getUsername())
@@ -61,12 +68,30 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public Claims extractAllClaims(String token){
+    public Claims extractAllClaims(String token) throws SignatureException, MalformedJwtException {
         return Jwts
                 .parser()
                 .verifyWith(getSignInKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    public UserDetails validateJwt(String token){
+        try {
+            String username = extractUsername(token);
+            if (username != null){
+
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+                if (isTokenValid(token, userDetails)) {
+                    return userDetails;
+                }
+
+            }
+        } catch (UsernameNotFoundException | SignatureException | MalformedJwtException e){
+            return null;
+        }
+
+        return null;
     }
 }

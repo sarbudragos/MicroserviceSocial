@@ -2,6 +2,8 @@ package org.example.userservice.config;
 
 import org.example.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.core.*;
+import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,7 +33,7 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration){
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -40,5 +42,34 @@ public class ApplicationConfiguration {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailsService());
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
+    }
+
+    @Bean
+    public Queue queue() {
+        return new Queue("user-request",true,false,false);
+    }
+
+    @Bean
+    public Exchange exchange()
+    {
+        return new DirectExchange("user-exchange");
+    }
+
+    @Bean
+    public String routingKey() {
+        return "routing-key";
+    }
+
+    @Bean
+    public Binding binding(Queue queue, Exchange exchange) {
+        return BindingBuilder.bind(queue)
+                .to(exchange)
+                .with(routingKey())
+                .noargs();
+    }
+
+    @Bean
+    public JacksonJsonMessageConverter jsonMessageConverter() {
+        return new JacksonJsonMessageConverter();
     }
 }

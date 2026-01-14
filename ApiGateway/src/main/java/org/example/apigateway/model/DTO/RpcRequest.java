@@ -5,10 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RpcRequest {
+public class RpcRequest implements Serializable {
     private String command;
-    private Object payload;
+    private String payload;
 }

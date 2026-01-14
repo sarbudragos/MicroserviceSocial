@@ -41,12 +41,73 @@ services:
 
   user-service:
     build: ./UserService
-#    ports:
-#      - "8080:8080"
+    ports:
+      - "8081:8080"
     depends_on:
       - db
       - rabbitmq
 #      - kafka
+    networks:
+      - ms-social-network
+
+  post-service:
+    build: ./PostService
+    ports:
+      - "8082:8080"
+    depends_on:
+      - db
+      - rabbitmq
+#      - kafka
+    networks:
+      - ms-social-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.0.1
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+  products-mfe:
+    build:
+      context: .
+      dockerfile: frontend/packages/user-profile/Dockerfile
+    ports:
+      - "3001:3001"
+    networks:
+      - ms-social-network
+
+  cart-mfe:
+    build:
+      context: .
+      dockerfile: frontend/packages/dashboard/Dockerfile
+    ports:
+      - "3002:3002"
+    networks:
+      - ms-social-network
+
+  host-app:
+    build:
+      context: .
+      dockerfile: frontend/packages/host/Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - products-mfe
+      - cart-mfe
     networks:
       - ms-social-network
 
