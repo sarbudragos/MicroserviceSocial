@@ -107,6 +107,7 @@ const Dashboard = () => {
               <div key={item.id} className="cart-item">
                 <div className="cart-item-details">
                   <h3>{item.content}</h3>
+                  <h5>Posted on: {item.creationDate.substring(0,10)}</h5>
                 </div>
                 <div className="cart-item-details">
                     <button onClick={(e) => {
