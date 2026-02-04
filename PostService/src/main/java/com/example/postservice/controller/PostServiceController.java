@@ -94,6 +94,23 @@ public class PostServiceController {
                     yield "error";
                 }
             }
+            case "add_random_post" -> {
+                try {
+                    Post post = postService.addRandomPost(objectMapper.readValue(request.getPayload(), Integer.class));
+
+                    PostDTO resultPostDTO = new PostDTO(
+                            post.getId(),
+                            post.getContent(),
+                            post.getCreationDate(),
+                            post.getUser().getId()
+                    );
+                    yield objectMapper.writeValueAsString(resultPostDTO);
+                } catch (Exception e) {
+                    logger.error(e.getMessage());
+                    logger.error(Arrays.toString(e.getStackTrace()));
+                    yield "error";
+                }
+            }
             case "delete_post" -> {
                 try {
                     Integer postId = postService.deletePost(objectMapper.readValue(request.getPayload(), Integer.class));

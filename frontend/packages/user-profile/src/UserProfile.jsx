@@ -7,17 +7,24 @@ import { useMatch } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 
 const UserProfile = () => {
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+    const [user, setUser] = useState({});
+    const [posts, setPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
+    let userId = window.location.pathname.split("/").pop();console.log(userId);
 
-  let userId = window.location.pathname.split("/").pop();
-  console.log(userId);
+    useEffect(() => {
+        loadUserPosts();
+        loadUser();
+        },
+        []
+    );
 
-  useEffect(() => {
-    loadUserPosts();
-  }, []);
+    const loadUser = async () => {
+        const data = await apiClient.getUser(userId);
+        setUser(data);
+    }
 
   const loadUserPosts = async () => {
     try {
@@ -59,7 +66,7 @@ const UserProfile = () => {
 
   return (
     <div className="product-list">
-      <h2>UserProfile</h2>
+      <h2>UserProfile: {user.username}</h2>
       <div className="cart-items">
         {posts.map((item) => (
             <div key={item.id} className="cart-item">

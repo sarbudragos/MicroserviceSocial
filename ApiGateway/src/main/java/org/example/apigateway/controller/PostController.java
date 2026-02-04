@@ -64,6 +64,16 @@ public class PostController {
         return ResponseEntity.ok(result);
     }
 
+    @PostMapping("/posts/random")
+    public ResponseEntity<PostDTO> addRandomPost() throws Exception {
+
+        User user = (User) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
+        logger.info(user.toString());
+        PostDTO result = postService.addRandomPost(user.getId());
+
+        return ResponseEntity.ok(result);
+    }
+
     @DeleteMapping("/posts/{id}")
     public ResponseEntity<Integer> deletePost(
             @PathVariable Integer id

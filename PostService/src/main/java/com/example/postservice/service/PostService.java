@@ -9,7 +9,13 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +26,8 @@ public class PostService {
     private final PostRepository postRepository;
     private final Logger logger = LoggerFactory.getLogger(PostService.class);
     private final UserRepository userRepository;
+    private final String randomPostBaseUrl = "http://nodered:1880";
+    private final HttpClient client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
 
     public Optional<Post> getPost(Integer postId) {
         return postRepository.findById(postId);
@@ -50,6 +58,34 @@ public class PostService {
         logger.info(post.toString());
 
         return post;
+    }
+
+    public Post addRandomPost(Integer userId) throws IOException, InterruptedException {
+        Post randomPost = new Post();
+        randomPost.setCreationDate(new Date());
+        randomPost.setId(null);
+
+        User user = userRepository.findById(userId).orElseThrow();
+        randomPost.setUser(user);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(randomPostBaseUrl + "/random"))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        logger.info(response.body());
+
+        randomPost.setContent(response.body());
+
+        userRepository.save(user);
+
+        postRepository.saveAndFlush(randomPost);
+
+        logger.info(randomPost.toString());
+
+        return randomPost;
     }
 
     public Integer deletePost(Integer postId) {

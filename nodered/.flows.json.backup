@@ -1,0 +1,59 @@
+[
+    {
+        "id": "aa54b48e9954c9f1",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "fe90bc0d57889746",
+        "type": "http in",
+        "z": "aa54b48e9954c9f1",
+        "name": "GET",
+        "url": "/random",
+        "method": "get",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 470,
+        "y": 300,
+        "wires": [
+            [
+                "7fa3bad0328ddbab"
+            ]
+        ]
+    },
+    {
+        "id": "0a8008481e718d3b",
+        "type": "http response",
+        "z": "aa54b48e9954c9f1",
+        "name": "Response",
+        "statusCode": "",
+        "headers": {},
+        "x": 990,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "7fa3bad0328ddbab",
+        "type": "function",
+        "z": "aa54b48e9954c9f1",
+        "name": "Random post",
+        "func": "var posts = [\"I like trains.\", \"I like turtles.\", \"I like this app.\"];\n\nvar randomIndex = Math.floor(Math.random() * posts.length);\n\nvar randomPost = posts[randomIndex];\n\nvar response = { \n    headers:{\n        \"Content-Type\":\"application/json\"\n    }, \n    payload: randomPost\n    \n};\n\nmsg.res = response;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 740,
+        "y": 300,
+        "wires": [
+            [
+                "0a8008481e718d3b"
+            ]
+        ]
+    }
+]

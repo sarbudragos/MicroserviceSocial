@@ -52,4 +52,8 @@ public class UserService {
         var user = userRepository.findUserByUserName(request.getUserName()).orElseThrow();
         return jwtService.generateToken(user);
     }
+
+    public User getUser(Integer userid){
+        return userRepository.findById(userid).orElseThrow();
+    }
 }

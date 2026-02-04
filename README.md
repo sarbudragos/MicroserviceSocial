@@ -15,12 +15,14 @@ git clone *repo name*
 ```bash
 cd MicroserviceSocial
 ```
-### 3. Run docker compose
+### 3. Go into the docker compose file and fill in any missing environment variables
+### 4. Potential db initialization issue
+if the db does not initialize correctly, run the V1 migration from the user service manually.
+### 5. Run docker compose
 ```bash
 docker compose up -d 
 ```
-### 4. Potential db initialization issue
-if the db does not initialize correctly, run the V1 migration from the user service manually.
+
 
 ### 4. Connect on localhost:3000 or localhost:8000 for the api
 
@@ -54,6 +56,7 @@ title Architecture diagram
         ContainerDb(db, "PostgreSQL", "SQL Database", "Stores User and Post data.")
         ContainerDb(broker, "RabbitMQ", "Message Broker", "Handles RPC between gateway and services.")
         ContainerDb(kafka, "Kafka", "Event Streaming", "Handles streams to notification service.")
+        ContainerDb(nodered, "NodeRed", "Low Code FAAS service", "Handles random post generation.")
     }
 
     Rel(user, host, "Loads App", "HTTP")
@@ -71,6 +74,8 @@ title Architecture diagram
 
     Rel(user, db, "Reads/Writes users", "JDBC")
     Rel(post, db, "Reads/Writes posts", "JDBC")
+    
+    Rel(post, nodered,"Get random post content")
 
 ```
 

@@ -72,47 +72,17 @@ class ApiClient {
     });
   }
 
-//   // Products API
-//   async getProducts() {
-//     return this.request('/products');
-//   }
-//
-//   // Dashboard API
-//   async getCart() {
-//     return this.request('/cart');
-//   }
-//
-//   async addToCart(product) {
-//     return this.request('/cart/items', {
-//       method: 'POST',
-//       body: JSON.stringify({
-//         productId: product.id,
-//         name: product.name,
-//         price: product.price,
-//         image: product.image,
-//         description: product.description,
-//       }),
-//     });
-//   }
-//
-//   async updateCartItemQuantity(productId, quantity) {
-//     return this.request(`/cart/items/${productId}`, {
-//       method: 'PUT',
-//       body: JSON.stringify({ quantity }),
-//     });
-//   }
-//
-//   async removeFromCart(productId) {
-//     return this.request(`/cart/items/${productId}`, {
-//       method: 'DELETE',
-//     });
-//   }
-//
-//   async clearCart() {
-//     return this.request('/cart', {
-//       method: 'DELETE',
-//     });
-//   }
+  async addRandomPost(){
+    return this.request('/posts/random', {
+      method: 'POST',
+    });
+  }
+
+  async getUser(userId){
+    return this.request('/users/' + userId, {
+      method: 'GET',
+    })
+  }
 
 }
 

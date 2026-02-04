@@ -51,6 +51,12 @@ const Dashboard = () => {
     loadDashboard();
   }
 
+  const addRandomPost = async () => {
+    let newPost = await apiClient.addRandomPost();
+
+    loadDashboard();
+  }
+
 
   if (loading) {
     return (
@@ -58,7 +64,8 @@ const Dashboard = () => {
         <div>
           <p>Dashboard</p>
           <input type="text" onChange={e => setNewPosts({...newPosts, content: e.target.value})} />
-          <button onClick={addPost} className="retry-btn"></button>
+          <button onClick={addPost} className="retry-btn"> Add post</button>
+          <button onClick={addRandomPost} className="retry-btn">Add random post</button>
         </div>
         <div className="loading">Loading dashboard...</div>
       </div>
@@ -69,9 +76,10 @@ const Dashboard = () => {
     return (
       <div className="cart">
         <div>
-          <p>Dashboard</p>
+          <p>Make a post</p>
           <input type="text" onChange={e => setNewPosts({...newPosts, content: e.target.value})} />
-          <button onClick={addPost} className="retry-btn"></button>
+          <button onClick={addPost} className="retry-btn"> Add post</button>
+          <button onClick={addRandomPost} className="retry-btn">Add random post</button>
         </div>
         <div className="error">{error}</div>
         <button onClick={loadDashboard} className="retry-btn">
@@ -87,8 +95,9 @@ const Dashboard = () => {
         <p>Dashboard</p>
         <input type="text" onChange={e => setNewPosts({...newPosts, content: e.target.value})} />
         <button onClick={addPost} className="retry-btn"> Add post</button>
+        <button onClick={addRandomPost} className="retry-btn">Add random post</button>
       </div>
-      <h2>Dashboard({posts.totalItems} items)</h2>
+      <h2>Dashboard({posts.length} posts)</h2>
       {posts.length === 0 ? (
         <p className="empty-cart">No posts</p>
       ) : (

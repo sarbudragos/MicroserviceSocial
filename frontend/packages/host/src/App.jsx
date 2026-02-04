@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import {BrowserRouter, Route, Routes, useNavigate} from 'react-router-dom';
 import './App.css';
 
 const UserProfile = lazy(() => import('user-profile/UserProfile'));
@@ -15,31 +15,14 @@ function App() {
 
     const { token, setToken } = useToken();
 
+    const logOut = async () => {
+        setToken(null);
+    }
+
     return (
-    // <div className="App">
-    //   <header className="app-header">
-    //     <h1>Microservice Social</h1>
-    //     <p>Made with microservices</p>
-    //   </header>
-    //
-    //   <div className="app-container">
-    //     <div className="user-profile-section">
-    //       <Suspense fallback={<div className="loading">Loading user profile...</div>}>
-    //         <UserProfile />
-    //       </Suspense>
-    //     </div>
-    //
-    //     <div className="dashboard-section">
-    //       <Suspense fallback={<div className="loading">Loading dashboard...</div>}>
-    //         <Dashboard />
-    //       </Suspense>
-    //     </div>
-    //   </div>
-    // </div>
-
-
         <div className="wrapper">
             <h1>Microservices Social</h1>
+            <button onClick={logOut} className="button">Log Out</button>
             <BrowserRouter>
                 <Routes>
                     <Route path="/login" element={<Login setToken={setToken} />} />

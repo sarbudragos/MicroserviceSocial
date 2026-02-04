@@ -98,6 +98,29 @@ public class PostService {
         return objectMapper.readValue(result, PostDTO.class);
     }
 
+    public PostDTO addRandomPost(Integer userId) throws Exception {
+        RpcRequest rpcRequest = new RpcRequest("add_random_post", objectMapper.writeValueAsString(userId));
+
+        String result = template.convertSendAndReceiveAsType(
+                postExchange.getName(),
+                routingKey,
+                rpcRequest,
+                new CorrelationData(UUID.randomUUID().toString()),
+                new ParameterizedTypeReference<>() {}
+        );
+
+        if(result == null){
+            throw new Exception("Message not received.");
+        }
+        if(result.equals("error")){
+            throw new NoSuchElementException("An error occurred.");
+        }
+
+        return objectMapper.readValue(result, PostDTO.class);
+    }
+
+
+
     public Integer deletePost(Integer postId) throws Exception {
         RpcRequest rpcRequest = new RpcRequest("delete_post", objectMapper.writeValueAsString(postId));
 

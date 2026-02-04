@@ -46,9 +46,11 @@ services:
     depends_on:
       - db
       - rabbitmq
-#      - kafka
+      - kafka
     networks:
       - ms-social-network
+    environment:
+      KAFKA_BROKER: kafka:9092
 
   post-service:
     build: ./PostService
@@ -57,7 +59,21 @@ services:
     depends_on:
       - db
       - rabbitmq
-#      - kafka
+      - kafka
+    networks:
+      - ms-social-network
+
+  notification-service:
+    build: ./NotificationService
+    ports:
+      - "8083:8080"
+    depends_on:
+      - db
+      - kafka
+    environment:
+      KAFKA_BROKER: kafka:9092
+      SMTP_USERNAME:
+      SMTP_PASSWORD:
     networks:
       - ms-social-network
 
@@ -66,6 +82,10 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - ms-social-network
 
   kafka:
     image: confluentinc/cp-kafka:7.0.1
@@ -73,15 +93,19 @@ services:
       - zookeeper
     ports:
       - "9092:9092"
+      - "29092:29092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    networks:
+      - ms-social-network
 
-  products-mfe:
+  user-profile-mfe:
     build:
       context: .
       dockerfile: frontend/packages/user-profile/Dockerfile
@@ -90,7 +114,7 @@ services:
     networks:
       - ms-social-network
 
-  cart-mfe:
+  dashboard-mfe:
     build:
       context: .
       dockerfile: frontend/packages/dashboard/Dockerfile
@@ -106,8 +130,17 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - products-mfe
-      - cart-mfe
+      - user-profile-mfe
+      - dashboard-mfe
+    networks:
+      - ms-social-network
+
+  nodered:
+    image: nodered/node-red:latest
+    ports:
+      - "1880:1880"
+    volumes:
+      - ./nodered:/data
     networks:
       - ms-social-network
 
